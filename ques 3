@@ -1,0 +1,132 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+
+struct Queue {
+    struct Node *front, *rear;
+};
+
+
+struct Node* newNode(int data) {
+    struct Node* temp = (struct Node*)malloc(sizeof(struct Node));
+    temp->data = data;
+    temp->next = NULL;
+    return temp;
+}
+
+
+struct Queue* createQueue() {
+    struct Queue* q = (struct Queue*)malloc(sizeof(struct Queue));
+    q->front = q->rear = NULL;
+    return q;
+}
+
+
+void enqueue(struct Queue* q, int data) {
+    struct Node* temp = newNode(data);
+    if (q->rear == NULL) {
+        q->front = q->rear = temp;
+        return;
+    }
+    q->rear->next = temp;
+    q->rear = temp;
+}
+
+int dequeue(struct Queue* q) {
+    if (q->front == NULL) {
+        return -1; // Indicate empty queue
+    }
+    struct Node* temp = q->front;
+    int data = temp->data;
+    q->front = q->front->next;
+    if (q->front == NULL) {
+        q->rear = NULL;
+    }
+    free(temp);
+    return data;
+}
+
+
+int isEmpty(struct Queue* q) {
+    return (q->front == NULL);
+}
+
+
+int getSize(struct Queue* q) {
+    int count = 0;
+    struct Node* current = q->front;
+    while (current != NULL) {
+        count++;
+        current = current->next;
+    }
+    return count;
+}
+
+
+void interleaveQueue(struct Queue* q) {
+    if (isEmpty(q) || getSize(q) % 2 != 0) {
+        printf("Queue must not be empty and must have an even number of elements for interleaving.\n");
+        return;
+    }
+
+    int n = getSize(q);
+    struct Queue* firstHalf = createQueue();
+
+    
+    for (int i = 0; i < n / 2; i++) {
+        enqueue(firstHalf, dequeue(q));
+    }
+
+   
+    while (!isEmpty(firstHalf)) {
+        enqueue(q, dequeue(firstHalf)); // First half element
+        enqueue(q, dequeue(q));         // Second half element
+    }
+
+    
+    free(firstHalf);
+}
+
+
+void printQueue(struct Queue* q) {
+    struct Node* current = q->front;
+    while (current != NULL) {
+        printf("%d ", current->data);
+        current = current->next;
+    }
+    printf("\n");
+}
+
+int main() {
+    struct Queue* q = createQueue();
+
+    
+    enqueue(q, 4);
+    enqueue(q, 7);
+    enqueue(q, 11);
+    enqueue(q, 20);
+    enqueue(q, 5);
+    enqueue(q, 9);
+
+    printf("Original Queue: ");
+    printQueue(q);
+
+    interleaveQueue(q);
+
+    printf("Interleaved Queue: ");
+    printQueue(q);
+
+   
+    while (!isEmpty(q)) {
+        dequeue(q);
+    }
+    free(q);
+
+    return 0;
+}
