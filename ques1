@@ -1,0 +1,142 @@
+#include <stdio.h>
+#include <stdbool.h> 
+
+#define MAX_SIZE 5 
+
+typedef struct {
+    int items[MAX_SIZE];
+    int front; 
+    int rear; 
+} Queue;
+
+
+void initializeQueue(Queue* q) {
+    q->front = -1; 
+    q->rear = -1; 
+}
+
+
+bool isEmpty(Queue* q) {
+    return (q->front == -1);
+}
+
+
+bool isFull(Queue* q) {
+    return ((q->rear + 1) % MAX_SIZE == q->front);
+}
+
+
+void enqueue(Queue* q, int value) {
+    if (isFull(q)) {
+        printf("Queue is full. Cannot enqueue %d.\n", value);
+        return;
+    }
+    if (isEmpty(q)) {
+        q->front = 0; // Set front to 0 if queue was empty
+    }
+    q->rear = (q->rear + 1) % MAX_SIZE; // Circular increment of rear
+    q->items[q->rear] = value;
+    printf("%d enqueued to queue.\n", value);
+}
+
+int dequeue(Queue* q) {
+    if (isEmpty(q)) {
+        printf("Queue is empty. Cannot dequeue.\n");
+        return -1; // Return an indicator for error
+    }
+    int dequeuedValue = q->items[q->front];
+    if (q->front == q->rear) { // If only one element was present
+        q->front = -1;
+        q->rear = -1;
+    } else {
+        q->front = (q->front + 1) % MAX_SIZE; // Circular increment of front
+    }
+    printf("%d dequeued from queue.\n", dequeuedValue);
+    return dequeuedValue;
+}
+
+
+int peek(Queue* q) {
+    if (isEmpty(q)) {
+        printf("Queue is empty. No element to peek.\n");
+        return -1; // Return an indicator for error
+    }
+    return q->items[q->front];
+}
+
+void display(Queue* q) {
+    if (isEmpty(q)) {
+        printf("Queue is empty.\n");
+        return;
+    }
+    printf("Queue elements: ");
+    int i = q->front;
+    while (true) {
+        printf("%d ", q->items[i]);
+        if (i == q->rear) {
+            break;
+        }
+        i = (i + 1) % MAX_SIZE;
+    }
+    printf("\n");
+}
+
+int main() {
+    Queue q;
+    initializeQueue(&q);
+    int choice, value;
+
+    do {
+        printf("\n--- Queue Operations Menu ---\n");
+        printf("1. Enqueue\n");
+        printf("2. Dequeue\n");
+        printf("3. Peek\n");
+        printf("4. Check if Empty\n");
+        printf("5. Check if Full\n");
+        printf("6. Display Queue\n");
+        printf("0. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter value to enqueue: ");
+                scanf("%d", &value);
+                enqueue(&q, value);
+                break;
+            case 2:
+                dequeue(&q);
+                break;
+            case 3:
+                value = peek(&q);
+                if (value != -1) {
+                    printf("Front element: %d\n", value);
+                }
+                break;
+            case 4:
+                if (isEmpty(&q)) {
+                    printf("Queue is empty.\n");
+                } else {
+                    printf("Queue is not empty.\n");
+                }
+                break;
+            case 5:
+                if (isFull(&q)) {
+                    printf("Queue is full.\n");
+                } else {
+                    printf("Queue is not full.\n");
+                }
+                break;
+            case 6:
+                display(&q);
+                break;
+            case 0:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 0);
+
+    return 0;
+}
